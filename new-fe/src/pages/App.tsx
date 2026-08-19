@@ -88,7 +88,12 @@ export default function App() {
 
   function logout() {
     getLaunchedApps().forEach((targetUrl) => {
-      window.open(`${targetUrl}/sso/logout`, "_blank", "noopener,noreferrer");
+      const iframe = document.createElement("iframe");
+      iframe.src = `${targetUrl}/sso/logout?silent=1`;
+      iframe.hidden = true;
+      iframe.setAttribute("aria-hidden", "true");
+      document.body.appendChild(iframe);
+      window.setTimeout(() => iframe.remove(), 5000);
     });
     clearLaunchedApps();
     clearSession();

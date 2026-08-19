@@ -87,7 +87,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers,
   });
 
-  if (response.status === 401) {
+  if (response.status === 401 && path !== "/auth/login") {
     clearSession();
     window.location.href = "/login";
     throw new Error("Sesi login sudah berakhir.");

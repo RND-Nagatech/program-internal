@@ -46,4 +46,8 @@ Portal mengirim JWT ke app finance lewat URL:
 ```
 
 Di `finance-subcriber/new-be`, set `PORTAL_JWT_SECRET` sama dengan `JWT_SECRET` portal. Frontend finance sudah memiliki route `/sso/callback` yang menyimpan token ke `secureStorage` dengan key existing `auth_token`.
+
+Dokumentasi standar login/logout SSO untuk aplikasi target baru ada di:
+
+- [`docs/sso-login-logout.md`](docs/sso-login-logout.md)
 # program-internal

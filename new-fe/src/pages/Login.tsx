@@ -1,15 +1,44 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, LogIn, ShieldCheck } from "lucide-react";
 import { api, getToken, saveSession } from "../api/client";
+
+const REMEMBER_LOGIN_KEY = "program_internal_remember_login";
+
+function encodeRememberedPassword(value: string) {
+  return btoa(encodeURIComponent(value));
+}
+
+function decodeRememberedPassword(value: string) {
+  try {
+    return decodeURIComponent(atob(value));
+  } catch {
+    return "";
+  }
+}
 
 export default function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(REMEMBER_LOGIN_KEY);
+    if (!raw) return;
+
+    try {
+      const saved = JSON.parse(raw) as { username?: string; password?: string };
+      setUsername(saved.username || "");
+      setPassword(saved.password ? decodeRememberedPassword(saved.password) : "");
+      setRememberMe(true);
+    } catch {
+      localStorage.removeItem(REMEMBER_LOGIN_KEY);
+    }
+  }, []);
 
   if (getToken()) return <Navigate to="/" replace />;
 
@@ -20,6 +49,17 @@ export default function Login() {
     try {
       const { token, user } = await api.login(username, password);
       saveSession(token, user);
+      if (rememberMe) {
+        localStorage.setItem(
+          REMEMBER_LOGIN_KEY,
+          JSON.stringify({
+            username,
+            password: encodeRememberedPassword(password),
+          })
+        );
+      } else {
+        localStorage.removeItem(REMEMBER_LOGIN_KEY);
+      }
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login gagal.");
@@ -61,6 +101,14 @@ export default function Login() {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
+          </label>
+          <label className="remember-login">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(event) => setRememberMe(event.target.checked)}
+            />
+            <span>Ingat saya</span>
           </label>
           {error && <div className="alert error">{error}</div>}
           <button className="login-submit" type="submit" disabled={loading}>

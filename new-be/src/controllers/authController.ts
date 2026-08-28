@@ -7,7 +7,14 @@ import { AuthRequest } from "../middleware/auth";
 const JWT_SECRET = process.env.JWT_SECRET || "change_this_to_a_strong_portal_secret";
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || "8h") as SignOptions["expiresIn"];
 
+
 function signPortalToken(user: { _id: unknown; username: string; name: string; role: string }) {
+  console.log({
+  jwtSecretConfigured: Boolean(process.env.JWT_SECRET),
+  jwtSecretLength: process.env.JWT_SECRET?.length,
+  jwtSecret: JWT_SECRET,
+  jwtSecretENV: process.env.JWT_SECRET
+});
   return jwt.sign(
     {
       userId: String(user._id),

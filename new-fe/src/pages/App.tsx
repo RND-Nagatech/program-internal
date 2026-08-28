@@ -294,8 +294,11 @@ export default function App() {
         {!loading && activeTab === "launcher" && (
           <section className="launcher-section">
             <div className="welcome-panel">
-              <h2>Selamat Datang, {currentUser.name}</h2>
-              <p>Akses cepat ke semua program Enterprise Hub Anda.</p>
+              <div>
+                <p className="welcome-kicker">WORKSPACE / LAUNCHPAD</p>
+                <h2>Program yang tersedia untuk Anda</h2>
+              </div>
+              <p>Akses cepat ke aplikasi internal sesuai dengan role dan kebutuhan kerja Anda.</p>
             </div>
             <div className="launcher-grid">
               {filteredMenus.map((menu) => (
@@ -509,7 +512,10 @@ function LauncherCard({ canAccess, menu, onLaunch }: { canAccess: boolean; menu:
   return (
     <article className={`menu-card ${!canAccess ? "menu-card-locked" : ""}`}>
       <div className="menu-card-header">
-        <span className="division">{menu.division}</span>
+        <div className="menu-card-label">
+          <span className="menu-code">{menu.code}</span>
+          <span className="division">{menu.division}</span>
+        </div>
         <span className="menu-icon-tile">
           {menu.division.toLowerCase().includes("finance") ? <CreditCard size={20} /> : menu.division.toLowerCase().includes("report") || menu.name.toLowerCase().includes("analytic") ? <BarChart3 size={20} /> : <Folder size={20} />}
         </span>
@@ -518,10 +524,16 @@ function LauncherCard({ canAccess, menu, onLaunch }: { canAccess: boolean; menu:
         <h2>{menu.name}</h2>
         <p>{menu.description || menu.targetUrl}</p>
       </div>
-      <button className={canAccess ? "primary-button" : "locked-button"} onClick={onLaunch} disabled={!canAccess}>
-        {canAccess ? <ExternalLink size={18} /> : <Lock size={17} />}
-        {canAccess ? "Buka Program" : "Tidak Ada Akses"}
-      </button>
+      <div className="menu-card-footer">
+        <span className={`menu-access ${canAccess ? "is-available" : "is-locked"}`}>
+          <span className="access-dot" />
+          {canAccess ? "Akses tersedia" : "Akses dibatasi"}
+        </span>
+        <button className={canAccess ? "primary-button" : "locked-button"} onClick={onLaunch} disabled={!canAccess}>
+          {canAccess ? <ExternalLink size={16} /> : <Lock size={15} />}
+          {canAccess ? "Buka" : "Terkunci"}
+        </button>
+      </div>
     </article>
   );
 }

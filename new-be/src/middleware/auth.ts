@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "change_this_to_a_strong_portal_secret";
+function getJwtSecret() {
+  return process.env.JWT_SECRET || "change_this_to_a_strong_portal_secret";
+}
 
 export interface AuthUser {
   userId: string;
@@ -24,7 +26,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as AuthUser;
+    const payload = jwt.verify(token, getJwtSecret()) as AuthUser;
     if (payload.iss !== "program-internal") {
       return res.status(401).json({ message: "Issuer token tidak valid." });
     }

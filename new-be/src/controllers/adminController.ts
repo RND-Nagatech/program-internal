@@ -124,6 +124,7 @@ export async function createMenu(req: AuthRequest, res: Response) {
     description: req.body.description,
     targetUrl: req.body.targetUrl,
     defaultPath: req.body.defaultPath || "/",
+    requiresLogin: req.body.requiresLogin !== false,
     allowedRoles: (req.body.allowedRoles || []).map(normalizeCode),
     isActive: req.body.isActive !== false,
   });
@@ -137,6 +138,7 @@ export async function updateMenu(req: AuthRequest, res: Response) {
     description: req.body.description,
     targetUrl: req.body.targetUrl,
     defaultPath: req.body.defaultPath || "/",
+    requiresLogin: req.body.requiresLogin !== undefined ? req.body.requiresLogin : undefined,
     allowedRoles: Array.isArray(req.body.allowedRoles) ? req.body.allowedRoles.map(normalizeCode) : undefined,
     isActive: req.body.isActive,
   };

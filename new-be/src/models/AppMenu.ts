@@ -7,6 +7,7 @@ export interface IAppMenu extends Document {
   description?: string;
   targetUrl: string;
   defaultPath: string;
+  requiresLogin: boolean;
   allowedRoles: string[];
   isActive: boolean;
 }
@@ -19,6 +20,7 @@ const AppMenuSchema = new Schema<IAppMenu>(
     description: { type: String, trim: true },
     targetUrl: { type: String, required: true, trim: true },
     defaultPath: { type: String, default: "/", trim: true },
+    requiresLogin: { type: Boolean, default: true },
     allowedRoles: [{ type: String, trim: true, lowercase: true }],
     isActive: { type: Boolean, default: true },
   },

@@ -27,6 +27,7 @@ export interface Menu {
   description?: string;
   targetUrl: string;
   defaultPath: string;
+  requiresLogin: boolean;
   allowedRoles: string[];
   isActive: boolean;
 }

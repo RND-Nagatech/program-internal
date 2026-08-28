@@ -8,6 +8,12 @@ function buildSsoUrl(targetUrl: string, token: string, redirectPath: string) {
   return `${base}/sso/callback#${params.toString()}`;
 }
 
+function buildDirectUrl(targetUrl: string, path: string) {
+  const base = targetUrl.replace(/\/$/, "");
+  const normalizedPath = path ? (path.startsWith("/") ? path : `/${path}`) : "/";
+  return `${base}${normalizedPath}`;
+}
+
 export async function launchMenu(req: AuthRequest, res: Response) {
   const menu = await AppMenu.findById(req.params.id);
   if (!menu || !menu.isActive) {
@@ -21,6 +27,8 @@ export async function launchMenu(req: AuthRequest, res: Response) {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
   return res.json({
-    url: buildSsoUrl(menu.targetUrl, token, menu.defaultPath),
+    url: menu.requiresLogin
+      ? buildSsoUrl(menu.targetUrl, token, menu.defaultPath)
+      : buildDirectUrl(menu.targetUrl, menu.defaultPath),
   });
 }

@@ -12,6 +12,7 @@ const emptyMenu = {
   description: "",
   targetUrl: "",
   defaultPath: "/",
+  requiresLogin: true,
   allowedRoles: [] as string[],
   isActive: true,
 };
@@ -112,7 +113,7 @@ export default function App() {
     programWindow.opener = null;
     try {
       const { url } = await api.launch(menu._id);
-      rememberLaunchedApp(menu.targetUrl);
+      if (menu.requiresLogin) rememberLaunchedApp(menu.targetUrl);
       programWindow.location.href = url;
     } catch (err) {
       programWindow.close();
@@ -181,7 +182,7 @@ export default function App() {
     setEditingMenuId(menu?._id || "");
     setMenuForm(
       menu
-        ? { code: menu.code, name: menu.name, division: menu.division, description: menu.description || "", targetUrl: menu.targetUrl, defaultPath: menu.defaultPath, allowedRoles: menu.allowedRoles, isActive: menu.isActive }
+        ? { code: menu.code, name: menu.name, division: menu.division, description: menu.description || "", targetUrl: menu.targetUrl, defaultPath: menu.defaultPath, requiresLogin: menu.requiresLogin !== false, allowedRoles: menu.allowedRoles, isActive: menu.isActive }
         : emptyMenu
     );
     setFormModal("menu");
@@ -370,7 +371,7 @@ export default function App() {
             <DataTable
               title="Data Menu Aplikasi"
               count={menus.length}
-              columns={["Nama Program", "Divisi", "Halaman Awal", "Role yang Diizinkan", "Aksi"]}
+              columns={["Nama Program", "Divisi", "Halaman Awal", "Login SSO", "Role yang Diizinkan", "Aksi"]}
               action={
                 <button className="primary-button table-action-button" onClick={() => openMenuForm()}>
                   <Plus size={16} /> Tambah Menu
@@ -382,6 +383,7 @@ export default function App() {
                   <td>{menu.name}</td>
                   <td>{menu.division}</td>
                   <td>{menu.defaultPath}</td>
+                  <td>{menu.requiresLogin ? "Ya" : "Tidak"}</td>
                   <td>
                     <div className="role-chip-list">
                       {menu.allowedRoles.map((role) => (
@@ -467,6 +469,10 @@ export default function App() {
             <input placeholder="Target URL, contoh http://localhost:8080" value={menuForm.targetUrl} onChange={(e) => setMenuForm({ ...menuForm, targetUrl: e.target.value })} required />
             <input placeholder="Halaman awal program, contoh /dashboard" value={menuForm.defaultPath} onChange={(e) => setMenuForm({ ...menuForm, defaultPath: e.target.value })} />
             <textarea placeholder="Deskripsi" value={menuForm.description} onChange={(e) => setMenuForm({ ...menuForm, description: e.target.value })} />
+            <label className="checkbox-row">
+              <input type="checkbox" checked={menuForm.requiresLogin} onChange={(e) => setMenuForm({ ...menuForm, requiresLogin: e.target.checked })} />
+              Website memerlukan login (gunakan SSO)
+            </label>
             <div className="role-picker">
               {roles.map((role) => (
                 <label key={role.code}>

@@ -5,6 +5,7 @@ export interface IUser extends Document {
   password: string;
   name: string;
   role: string;
+  transaction_visibility: "own_only" | "all";
   isActive: boolean;
 }
 
@@ -14,6 +15,7 @@ const UserSchema = new Schema<IUser>(
     password: { type: String, required: true },
     name: { type: String, required: true, trim: true },
     role: { type: String, required: true, trim: true, lowercase: true },
+    transaction_visibility: { type: String, enum: ["own_only", "all"], default: "all" },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

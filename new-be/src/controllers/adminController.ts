@@ -9,6 +9,10 @@ function normalizeCode(value: unknown) {
   return String(value || "").trim().toLowerCase();
 }
 
+function normalizeTransactionVisibility(value: unknown): "own_only" | "all" {
+  return value === "own_only" ? "own_only" : "all";
+}
+
 export async function listRoles(_req: AuthRequest, res: Response) {
   const roles = await Role.find().sort({ code: 1 });
   return res.json(roles);
@@ -57,7 +61,7 @@ export async function listUsers(_req: AuthRequest, res: Response) {
 }
 
 export async function createUser(req: AuthRequest, res: Response) {
-  const { username, password, name, role, isActive } = req.body;
+  const { username, password, name, role, transaction_visibility, isActive } = req.body;
   if (!username || !password || !name || !role) {
     return res.status(400).json({ message: "Username, password, nama, dan role wajib diisi." });
   }
@@ -72,6 +76,7 @@ export async function createUser(req: AuthRequest, res: Response) {
     password: hashedPassword,
     name,
     role: roleCode,
+    transaction_visibility: roleCode === "superuser" ? "all" : normalizeTransactionVisibility(transaction_visibility),
     isActive: isActive !== false,
   });
 
@@ -81,8 +86,10 @@ export async function createUser(req: AuthRequest, res: Response) {
 }
 
 export async function updateUser(req: AuthRequest, res: Response) {
-  const { username, password, name, role, isActive } = req.body;
+  const { username, password, name, role, transaction_visibility, isActive } = req.body;
   const update: Record<string, unknown> = {};
+  const existingUser = await User.findById(req.params.id).select("role");
+  if (!existingUser) return res.status(404).json({ message: "User tidak ditemukan." });
 
   if (username) update.username = normalizeCode(username);
   if (name) update.name = name;
@@ -92,11 +99,16 @@ export async function updateUser(req: AuthRequest, res: Response) {
     const roleExists = await Role.exists({ code: roleCode });
     if (!roleExists) return res.status(400).json({ message: "Role tidak valid." });
     update.role = roleCode;
+    if (roleCode === "superuser") update.transaction_visibility = "all";
   }
+  const finalRole = String(update.role || existingUser.role || "");
+  if (transaction_visibility !== undefined && update.transaction_visibility !== "all") {
+    update.transaction_visibility = normalizeTransactionVisibility(transaction_visibility);
+  }
+  if (finalRole === "superuser") update.transaction_visibility = "all";
   if (password) update.password = await bcrypt.hash(password, 10);
 
   const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select("-password");
-  if (!user) return res.status(404).json({ message: "User tidak ditemukan." });
   return res.json(user);
 }
 

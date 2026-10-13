@@ -9,6 +9,7 @@ export interface SessionUser {
   username: string;
   name: string;
   role: string;
+  transaction_visibility?: "own_only" | "all";
 }
 
 export interface Role {
@@ -37,6 +38,7 @@ export interface User {
   username: string;
   name: string;
   role: string;
+  transaction_visibility?: "own_only" | "all";
   isActive: boolean;
 }
 

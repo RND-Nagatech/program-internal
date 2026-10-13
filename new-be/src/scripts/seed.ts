@@ -59,6 +59,24 @@ async function seed() {
     { upsert: true }
   );
 
+  await AppMenu.updateOne(
+    { code: "ok" },
+    {
+      $setOnInsert: {
+        code: "ok",
+        name: "Order Konfirmasi",
+        division: "finance",
+        description: "Program order confirmation untuk kebutuhan transaksi.",
+        targetUrl: process.env.PROGRAM_OK_URL || "http://localhost:5175",
+        defaultPath: "/",
+        allowedRoles: ["rnd", "superuser", "warehouse", "gudang", "corsec", "implementor", "marketing"],
+        isActive: true,
+        requiresLogin: true,
+      },
+    },
+    { upsert: true }
+  );
+
   console.log("Seed complete.");
   console.log(`Superuser: ${username}`);
   console.log(`Password : ${password}`);

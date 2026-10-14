@@ -10,18 +10,13 @@ function getJwtSecret() {
   return process.env.JWT_SECRET || "change_this_to_a_strong_portal_secret";
 }
 
-function normalizeTransactionVisibility(value: unknown): "own_only" | "all" {
-  return value === "own_only" ? "own_only" : "all";
-}
-
-function signPortalToken(user: { _id: unknown; username: string; name: string; role: string; transaction_visibility?: string }) {
+function signPortalToken(user: { _id: unknown; username: string; name: string; role: string }) {
   return jwt.sign(
     {
       userId: String(user._id),
       username: user.username,
       name: user.name,
       role: user.role,
-      transaction_visibility: user.role === "superuser" ? "all" : normalizeTransactionVisibility(user.transaction_visibility),
       iss: "program-internal",
     },
     getJwtSecret(),
@@ -54,7 +49,6 @@ export async function login(req: Request, res: Response) {
       username: user.username,
       name: user.name,
       role: user.role,
-      transaction_visibility: user.role === "superuser" ? "all" : normalizeTransactionVisibility(user.transaction_visibility),
     },
   });
 }

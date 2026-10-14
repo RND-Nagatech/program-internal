@@ -4,11 +4,7 @@ import { BarChart3, CreditCard, Edit, ExternalLink, Folder, LayoutGrid, Lock, Lo
 import { api, clearLaunchedApps, clearSession, getLaunchedApps, getStoredUser, getToken, Menu, rememberLaunchedApp, Role, User } from "../api/client";
 
 const emptyRole = { code: "", name: "", description: "" };
-const emptyUser = { username: "", name: "", password: "", role: "finance", transaction_visibility: "all" as "own_only" | "all", isActive: true };
-const transactionVisibilityLabel: Record<"own_only" | "all", string> = {
-  own_only: "Input sendiri",
-  all: "Semua input",
-};
+const emptyUser = { username: "", name: "", password: "", role: "finance", isActive: true };
 const emptyMenu = {
   code: "",
   name: "",
@@ -178,7 +174,7 @@ export default function App() {
 
   function openUserForm(user?: User) {
     setEditingUserId(user?._id || "");
-    setUserForm(user ? { ...user, transaction_visibility: user.transaction_visibility || "all", password: "" } : { ...emptyUser, role: roles[0]?.code || "finance" });
+    setUserForm(user ? { ...user, password: "" } : { ...emptyUser, role: roles[0]?.code || "finance" });
     setFormModal("user");
   }
 
@@ -350,7 +346,7 @@ export default function App() {
             <DataTable
               title="Data User"
               count={users.length}
-              columns={["Username", "Nama", "Role", "Akses Transaksi", "Status", "Aksi"]}
+              columns={["Username", "Nama", "Role", "Status", "Aksi"]}
               action={
                 <button className="primary-button table-action-button" onClick={() => openUserForm()}>
                   <Plus size={16} /> Tambah User
@@ -362,7 +358,6 @@ export default function App() {
                   <td>{user.username}</td>
                   <td>{user.name}</td>
                   <td>{user.role}</td>
-                  <td>{transactionVisibilityLabel[user.transaction_visibility || "all"]}</td>
                   <td><span className={user.isActive ? "status-pill active" : "status-pill"}>{user.isActive ? "Aktif" : "Nonaktif"}</span></td>
                   <td className="actions">
                     <button onClick={() => openUserForm(user)}><Edit size={16} /></button>
@@ -453,16 +448,8 @@ export default function App() {
             <input placeholder="Username/email" value={userForm.username} onChange={(e) => setUserForm({ ...userForm, username: e.target.value })} required />
             <input placeholder="Nama" value={userForm.name} onChange={(e) => setUserForm({ ...userForm, name: e.target.value })} required />
             <input placeholder={editingUserId ? "Password baru, opsional" : "Password"} type="password" value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} required={!editingUserId} />
-            <select value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value, transaction_visibility: e.target.value === "superuser" ? "all" : userForm.transaction_visibility })}>
+            <select value={userForm.role} onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}>
               {roles.map((role) => <option key={role.code} value={role.code}>{role.name}</option>)}
-            </select>
-            <select
-              value={userForm.transaction_visibility}
-              onChange={(e) => setUserForm({ ...userForm, transaction_visibility: e.target.value as "own_only" | "all" })}
-              disabled={userForm.role === "superuser"}
-            >
-              <option value="all">Bisa lihat semua input transaksi</option>
-              <option value="own_only">Hanya lihat input transaksi sendiri</option>
             </select>
             <label className="checkbox-row">
               <input type="checkbox" checked={userForm.isActive} onChange={(e) => setUserForm({ ...userForm, isActive: e.target.checked })} />

@@ -10,7 +10,6 @@ export interface AuthUser {
   username: string;
   name: string;
   role: string;
-  transaction_visibility?: "own_only" | "all";
   iss?: string;
 }
 
